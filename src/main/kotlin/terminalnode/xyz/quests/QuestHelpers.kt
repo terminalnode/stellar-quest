@@ -1,7 +1,10 @@
-package terminalnode.xyz.utils
+package terminalnode.xyz.quests
 
+import org.stellar.sdk.Server
 import org.stellar.sdk.Transaction
-import terminalnode.xyz.functions.stellarServer
+
+const val stellarServerUrl = "https://horizon-testnet.stellar.org"
+val stellarServer = Server(stellarServerUrl)
 
 fun tryTransactions(vararg transactions: Transaction) {
   val totalTxs = transactions.size
