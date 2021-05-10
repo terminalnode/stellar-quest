@@ -31,3 +31,10 @@ I'll add those as well.
 I mostly do backend web development, and I wanted to try out Ktor even if it doesn't make
 much sense for this to be an API. It also provides an easy way for me to run specific
 solutions by triggering their endpoints. ¯\_(ツ)_/¯
+
+## Positions
+Bear in mind that some of these are released in the middle of the night, the exact release time
+depends on the quest. To give everyone a chance (I assume) the time of day that they are released
+varies a little.
+ - **(Set 3, quest 2)** 13th place (80 XLM)
+ - **(Set 3, quest 3)** 6th place (200 XLM)
