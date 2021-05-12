@@ -7,7 +7,7 @@ import terminalnode.xyz.utils.tryTransactions
 import java.security.MessageDigest
 
 object StellarSet2 {
-  private fun announceQuest(questNumber: Int, codeBlock: () -> Any) {
+  private fun announceQuest(questNumber: Int, codeBlock: () -> Unit) {
     println("START: Set 2, Quest $questNumber")
     codeBlock()
     println("END: Set 2, Quest $questNumber")
@@ -108,9 +108,29 @@ object StellarSet2 {
     }
   }
 
-  fun quest4() {
+  fun quest4(secretKey: String) {
+    // Quest: Create a claimable balance of 100 XLM only claimable by you. It also should not be claimable before the
+    // release of Set 2 Quest 5... but we're way past that now. Probably need to put some kind of time constraint though.
     announceQuest(4) {
-      TODO("Quest is not done yet!")
+      val sourceAccount = KeyPair.fromSecretSeed(secretKey)
+      val remoteSourceAccount = stellarServer.accounts().account(sourceAccount.accountId)
+
+      val transaction = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
+        .addOperation(
+          CreateClaimableBalanceOperation.Builder(
+            "100",
+            AssetTypeNative(),
+            listOf(Claimant(
+              sourceAccount.accountId,
+              Predicate.Not(Predicate.RelBefore(100))))
+          ).build()
+        ).addMemo(Memo.text("Claim this if you can!"))
+        .setBaseFee(100)
+        .setTimeout(180)
+        .build()
+        .also { it.sign(sourceAccount) }
+
+      tryTransactions(transaction)
     }
   }
 
