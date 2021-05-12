@@ -7,6 +7,7 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import terminalnode.xyz.config.routing.configureRoutingSet2
 import terminalnode.xyz.config.routing.configureRoutingSet3
 
 fun main() {
@@ -31,6 +32,7 @@ fun main() {
       gson { setPrettyPrinting() }
     }
 
+    configureRoutingSet2()
     configureRoutingSet3()
   }.start(wait = true)
 }
