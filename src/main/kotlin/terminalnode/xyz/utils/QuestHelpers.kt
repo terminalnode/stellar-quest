@@ -1,4 +1,4 @@
-package terminalnode.xyz.quests
+package terminalnode.xyz.utils
 
 import org.stellar.sdk.Server
 import org.stellar.sdk.Transaction

@@ -1,10 +1,47 @@
 package terminalnode.xyz.quests
 
 import org.stellar.sdk.*
+import terminalnode.xyz.utils.stellarServer
+import terminalnode.xyz.utils.tryTransactions
 import java.security.MessageDigest
 import java.util.*
 
 object StellarSet3 {
+  fun quest1() {
+    TODO("Quest is not done yet!")
+  }
+
+  fun quest2(sourceSecretKey: String) {
+    println("Generating key pairs...")
+    val source = KeyPair.fromSecretSeed(sourceSecretKey)
+    val destination = KeyPair.fromAccountId("GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B")
+
+    println("Verify accounts exist...")
+    stellarServer.accounts().account(destination.accountId)
+    val sourceAccount = stellarServer.accounts().account(source.accountId)
+
+    println("Initializing transaction builder")
+    val transactionBuilder = Transaction.Builder(sourceAccount, Network.TESTNET)
+      .addMemo(Memo.text("Den ska upp i hundra!"))
+      .setBaseFee(100)
+      .setTimeout(180)
+
+    println("Adding a hundred 0.01 transactions to ${destination.accountId}...")
+    for (i in 1..100) {
+      transactionBuilder.addOperation(
+        PaymentOperation
+          .Builder(destination.accountId, AssetTypeNative(), "0.01")
+          .build()
+      )
+    }
+
+    println("Building and signing transaction...")
+    val transaction = transactionBuilder.build()
+    transaction.sign(source)
+
+    tryTransactions(transaction)
+  }
+
   fun quest3(sourceSecretKey: String) {
     // Add the special signing key
     val source = KeyPair.fromSecretSeed(sourceSecretKey)
@@ -41,34 +78,23 @@ object StellarSet3 {
     tryTransactions(addSigningKeyTx, removeSigningKeyTx)
   }
 
-  fun quest2(sourceSecretKey: String) {
-    println("Generating key pairs...")
-    val source = KeyPair.fromSecretSeed(sourceSecretKey)
-    val destination = KeyPair.fromAccountId("GCDNJUBQSX7AJWLJACMJ7I4BC3Z47BQUTMHEICZLE6MU4KQBRYG5JY6B")
+  fun quest4() {
+    TODO("Quest is not done yet!")
+  }
 
-    println("Verify accounts exist...")
-    stellarServer.accounts().account(destination.accountId)
-    val sourceAccount = stellarServer.accounts().account(source.accountId)
+  fun quest5() {
+    TODO("Quest is not done yet!")
+  }
 
-    println("Initializing transaction builder")
-    val transactionBuilder = Transaction.Builder(sourceAccount, Network.TESTNET)
-      .addMemo(Memo.text("Den ska upp i hundra!"))
-      .setBaseFee(100)
-      .setTimeout(180)
+  fun quest6() {
+    TODO("Quest is not done yet!")
+  }
 
-    println("Adding a hundred 0.01 transactions to ${destination.accountId}...")
-    for (i in 1..100) {
-      transactionBuilder.addOperation(
-        PaymentOperation
-          .Builder(destination.accountId, AssetTypeNative(), "0.01")
-          .build()
-      )
-    }
+  fun quest7() {
+    TODO("Quest is not done yet!")
+  }
 
-    println("Building and signing transaction...")
-    val transaction = transactionBuilder.build()
-    transaction.sign(source)
-
-    tryTransactions(transaction)
+  fun quest8() {
+    TODO("Quest is not done yet!")
   }
 }
