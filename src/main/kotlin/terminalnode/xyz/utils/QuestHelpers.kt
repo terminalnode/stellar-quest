@@ -19,7 +19,9 @@ fun tryTransactions(vararg transactions: Transaction) {
       val resultText = if (response.isSuccess) "Success" else "Failure"
 
       println("Transaction $index/$totalTxs ($memo) completed! $resultText")
-      if (!response.isSuccess) throw Exception("Transaction $index/$totalTxs failed! ($memo)")
+      if (!response.isSuccess) {
+        throw Exception(response.extras.resultCodes.transactionResultCode)
+      }
     } catch (e: Exception) {
       println("Transaction $index ($memo) failed with exception: ${e.message}.\nStacktrace:")
       e.printStackTrace()

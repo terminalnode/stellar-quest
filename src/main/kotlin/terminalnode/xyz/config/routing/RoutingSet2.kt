@@ -8,8 +8,10 @@ import terminalnode.xyz.quests.StellarSet3
 fun Application.configureRoutingSet2() {
   routing {
     route("/set/2/quest") {
-      get("/1") {
-        StellarSet2.quest1()
+      get("/1/{publicKey}") {
+        val publicKey = call.parameters["publicKey"]
+          ?: throw Exception("Please provide the secret key of your account")
+        StellarSet2.quest1(publicKey)
       }
 
       get("/2") {
