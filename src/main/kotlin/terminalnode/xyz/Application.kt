@@ -22,7 +22,7 @@ fun main() {
 
       exception<Throwable> { cause ->
         call.respondText(
-          "${cause.message ?: "Unknown error"}\n",
+          "${cause.message ?: "Unknown error"}\n".also { cause.printStackTrace() },
           ContentType.Text.Plain
         )
       }

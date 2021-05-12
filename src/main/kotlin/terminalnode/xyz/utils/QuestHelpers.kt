@@ -1,7 +1,9 @@
 package terminalnode.xyz.utils
 
+import org.stellar.sdk.KeyPair
 import org.stellar.sdk.Server
 import org.stellar.sdk.Transaction
+import java.net.URL
 
 const val stellarServerUrl = "https://horizon-testnet.stellar.org"
 val stellarServer = Server(stellarServerUrl)
@@ -27,4 +29,10 @@ fun tryTransactions(vararg transactions: Transaction) {
       e.printStackTrace()
     }
   }
+}
+
+fun fundRandomAccount(): KeyPair = KeyPair.random().also {
+  val friendBotUrl = "https://friendbot.stellar.org/?addr=${it.accountId}";
+  URL(friendBotUrl).openStream()
+  println("New random account funded");
 }

@@ -1,22 +1,16 @@
 package terminalnode.xyz.quests
 
 import org.stellar.sdk.*
+import org.stellar.sdk.xdr.AssetCode
+import terminalnode.xyz.utils.fundRandomAccount
 import terminalnode.xyz.utils.stellarServer
 import terminalnode.xyz.utils.tryTransactions
-import java.net.URL
 import java.security.MessageDigest
-import java.util.*
 
 object StellarSet2 {
   fun quest1(publicKey: String) {
     // Quest: Create an account with 5k stellar and a sha256 MEMO_HASH of "Stellar Quest Series 2"
-    // First we create a random account funded with 10k from friendbot
-    val initialAccount = KeyPair.random()
-    val friendBotUrl = "https://friendbot.stellar.org/?addr=${initialAccount.accountId}";
-    URL(friendBotUrl).openStream()
-    println("New random account funded");
-
-    // Create an account with the required hash
+    val initialAccount = fundRandomAccount()
     val sourceAccount = stellarServer.accounts().account(initialAccount.accountId)
     val memoHash = MessageDigest.getInstance("SHA-256")
       .digest("Stellar Quest Series 2".toByteArray())
@@ -33,8 +27,31 @@ object StellarSet2 {
     tryTransactions(transaction)
   }
 
-  fun quest2() {
-    TODO("Quest is not done yet!")
+  fun quest2(secretKey: String) {
+    val issuingAccount = fundRandomAccount()
+    val sourceAccount = KeyPair.fromSecretSeed(secretKey)
+    val remoteSourceAccount = stellarServer.accounts().account(sourceAccount.accountId)
+    val newAsset = Asset.createNonNativeAsset("ASS", issuingAccount.accountId);
+
+    val transaction = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
+      .addOperation(
+        ChangeTrustOperation.Builder(newAsset, "100000000").build()
+      ).addOperation(
+        PaymentOperation.Builder(sourceAccount.accountId, newAsset, "1000")
+          .setSourceAccount(issuingAccount.accountId)
+          .build()
+      )
+      .setBaseFee(100)
+      .setTimeout(180)
+      .build()
+      .also {
+        it.sign(issuingAccount)
+        it.sign(sourceAccount)
+      }
+
+    // Sign with both keys to create trust line from source and issue asset from issuing
+
+    tryTransactions(transaction)
   }
 
   fun quest3() {
