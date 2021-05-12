@@ -32,6 +32,7 @@ fun tryTransactions(vararg transactions: Transaction) {
 }
 
 fun fundRandomAccount(): KeyPair = KeyPair.random().also {
+  println("Generating and funding an account")
   val friendBotUrl = "https://friendbot.stellar.org/?addr=${it.accountId}";
   URL(friendBotUrl).openStream()
   println("New random account funded");

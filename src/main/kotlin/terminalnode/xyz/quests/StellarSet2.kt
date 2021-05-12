@@ -2,6 +2,7 @@ package terminalnode.xyz.quests
 
 import org.stellar.sdk.*
 import org.stellar.sdk.xdr.AssetCode
+import org.stellar.sdk.xdr.AssetType
 import terminalnode.xyz.utils.fundRandomAccount
 import terminalnode.xyz.utils.stellarServer
 import terminalnode.xyz.utils.tryTransactions
@@ -35,9 +36,12 @@ object StellarSet2 {
 
     val transaction = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
       .addOperation(
-        ChangeTrustOperation.Builder(newAsset, "100000000").build()
+        ChangeTrustOperation
+          .Builder(newAsset, "100000000")
+          .build()
       ).addOperation(
-        PaymentOperation.Builder(sourceAccount.accountId, newAsset, "1000")
+        PaymentOperation
+          .Builder(sourceAccount.accountId, newAsset, "1000")
           .setSourceAccount(issuingAccount.accountId)
           .build()
       )
@@ -49,13 +53,46 @@ object StellarSet2 {
         it.sign(sourceAccount)
       }
 
-    // Sign with both keys to create trust line from source and issue asset from issuing
-
     tryTransactions(transaction)
   }
 
-  fun quest3() {
-    TODO("Quest is not done yet!")
+  fun quest3(secretKey: String) {
+    val sugarDaddyAccount = fundRandomAccount()
+    val sourceAccount = KeyPair.fromSecretSeed(secretKey)
+    val remoteSourceAccount = stellarServer.accounts().account(sourceAccount.accountId)
+
+    val transaction = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
+      .addOperation(
+        PaymentOperation
+          .Builder(sugarDaddyAccount.accountId, AssetTypeNative(), "1")
+          .build()
+      )
+      .setBaseFee(100)
+      .setTimeout(180)
+      .build()
+      .also {
+        it.sign(sourceAccount)
+      }
+
+    val feeBumpTransaction = FeeBumpTransaction.Builder(transaction)
+      .setBaseFee(180)
+      .setFeeAccount(sugarDaddyAccount.accountId)
+      .build()
+      .also {
+        it.sign(sugarDaddyAccount)
+      }
+
+    // The Stellar Server object accepts Transactions or FeeBumpTransactions, not AbstractTransaction,
+    // so we can't make the handy-dandy tryTransactions method work for both unfortunately.
+    try {
+      val response = stellarServer.submitTransaction(feeBumpTransaction)
+      if (!response.isSuccess) {
+        println(response.extras.resultCodes.transactionResultCode)
+        throw Exception()
+      }
+    } catch (e: Exception) {
+      println("TRANSACTION FAILED! OH NO!")
+    }
   }
 
   fun quest4() {

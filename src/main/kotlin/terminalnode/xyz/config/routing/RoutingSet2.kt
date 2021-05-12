@@ -10,7 +10,7 @@ fun Application.configureRoutingSet2() {
     route("/set/2/quest") {
       get("/1/{publicKey}") {
         val publicKey = call.parameters["publicKey"]
-          ?: throw Exception("Please provide the secret key of your account")
+          ?: throw Exception("Please provide the public key of your account")
         StellarSet2.quest1(publicKey)
       }
 
@@ -20,8 +20,10 @@ fun Application.configureRoutingSet2() {
         StellarSet2.quest2(secretKey)
       }
 
-      get("/3") {
-        StellarSet2.quest3()
+      get("/3/{secretKey}") {
+        val secretKey = call.parameters["secretKey"]
+          ?: throw Exception("Please provide the secret key of your account")
+        StellarSet2.quest3(secretKey)
       }
 
       get("/4") {
