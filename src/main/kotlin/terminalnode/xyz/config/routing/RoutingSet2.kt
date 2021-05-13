@@ -46,8 +46,12 @@ fun Application.configureRoutingSet2() {
         StellarSet2.quest7()
       }
 
-      get("/8") {
-        StellarSet2.quest8()
+      get("/8/{secretKey}") {
+        val secretKey = call.parameters["secretKey"]
+          ?: throw Exception("Please provide the secret key of your account")
+
+        // Change this to whatever your domain should be, I don't feel like passing it as a param.
+        StellarSet2.quest8(secretKey, "terminalnode.xyz")
       }
     }
   }

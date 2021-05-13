@@ -175,9 +175,25 @@ object StellarSet2 {
     }
   }
 
-  fun quest8() {
+  fun quest8(secretKey: String, domain: String) {
     announceQuest(8) {
-      TODO("Quest is not done yet!")
+      println("NOTE: This is just a partial solution, you also need to add your .well-known/stellar.toml file to the domain!")
+      val sourceAccount = KeyPair.fromSecretSeed(secretKey)
+      val remoteSourceAccount = stellarServer.accounts().account(sourceAccount.accountId)
+
+      val transaction = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
+        .addOperation(
+          SetOptionsOperation
+            .Builder()
+            .setHomeDomain(domain)
+            .build()
+        ).addMemo(Memo.text("This is my home"))
+        .setBaseFee(100)
+        .setTimeout(180)
+        .build()
+        .also { it.sign(sourceAccount) }
+
+      tryTransactions(transaction)
     }
   }
 }
