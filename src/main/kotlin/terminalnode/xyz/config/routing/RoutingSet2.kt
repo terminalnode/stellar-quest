@@ -3,7 +3,6 @@ package terminalnode.xyz.config.routing
 import io.ktor.application.*
 import io.ktor.routing.*
 import terminalnode.xyz.quests.StellarSet2
-import terminalnode.xyz.quests.StellarSet3
 
 fun Application.configureRoutingSet2() {
   routing {

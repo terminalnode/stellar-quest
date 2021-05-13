@@ -41,7 +41,7 @@ object StellarSet2 {
       val issuingAccount = fundRandomAccount()
       val sourceAccount = KeyPair.fromSecretSeed(secretKey)
       val remoteSourceAccount = stellarServer.accounts().account(sourceAccount.accountId)
-      val newAsset = Asset.createNonNativeAsset("ASS", issuingAccount.accountId);
+      val newAsset = Asset.createNonNativeAsset("ASS", issuingAccount.accountId)
 
       val transaction = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
         .addOperation(
