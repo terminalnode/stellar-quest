@@ -134,9 +134,32 @@ object StellarSet2 {
     }
   }
 
-  fun quest5() {
+  fun quest5(secretKey: String) {
+    // Quest: Claim the balance from quest 4
     announceQuest(5) {
-      TODO("Quest is not done yet!")
+      val sourceAccount = KeyPair.fromSecretSeed(secretKey)
+      val remoteSourceAccount = stellarServer.accounts().account(sourceAccount.accountId)
+
+      // This will throw an exception if there is no balance to be claimed.
+      // And if the time hasn't passed it seems it will just throw a tx_failed error.
+      val claimableBalance = stellarServer.claimableBalances()
+        .forClaimant(sourceAccount.accountId)
+        .execute()
+        .records
+        .first()
+
+      val transaction = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
+        .addOperation(
+          ClaimClaimableBalanceOperation
+            .Builder(claimableBalance.id)
+            .build()
+        ).addMemo(Memo.text("My money!"))
+        .setBaseFee(100)
+        .setTimeout(180)
+        .build()
+        .also { it.sign(sourceAccount) }
+
+      tryTransactions(transaction)
     }
   }
 
