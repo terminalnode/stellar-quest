@@ -38,3 +38,4 @@ depends on the quest. To give everyone a chance (I assume) the time of day that 
 varies a little.
  - **(Set 3, quest 2)** 13th place (80 XLM)
  - **(Set 3, quest 3)** 6th place (200 XLM)
+ - **(Set 3, quest 4)** 1st place (500 XLM)

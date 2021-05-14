@@ -92,7 +92,37 @@ object StellarSet3 {
 
   fun quest4(sourceSecretKey: String) {
     announceQuest(4) {
-      TODO("Quest is not done yet!")
+      // Quest: Create a pre-authorized transaction
+      val source = KeyPair.fromSecretSeed(sourceSecretKey)
+      val sourceAccount = stellarServer.accounts().account(source.accountId)
+
+      // There's probably some better way to do this, but this is the way I came up with to make sure
+      // that the preAuth transaction has a later sequence number than the authorizing transaction.
+      val sourceAccountBumped = stellarServer.accounts().account(source.accountId)
+      sourceAccountBumped.incrementSequenceNumber()
+
+      val preAuthorizedTransaction = Transaction.Builder(sourceAccountBumped, Network.TESTNET)
+        .addOperation(
+          SetOptionsOperation.Builder()
+            .setHomeDomain("test.xyz")
+            .build()
+        ).addMemo(Memo.text("Pre-Quest 4"))
+        .setBaseFee(100)
+        .setTimeout(180)
+        .build()
+
+      val authorizingTransaction = Transaction.Builder(sourceAccount, Network.TESTNET)
+        .addOperation(
+          SetOptionsOperation.Builder()
+            .setSigner(Signer.preAuthTx(preAuthorizedTransaction), 1)
+            .build()
+        ).addMemo(Memo.text("Quest 4"))
+        .setBaseFee(100)
+        .setTimeout(180)
+        .build()
+        .also { it.sign(source) }
+
+      tryTransactions(authorizingTransaction, preAuthorizedTransaction)
     }
   }
 
