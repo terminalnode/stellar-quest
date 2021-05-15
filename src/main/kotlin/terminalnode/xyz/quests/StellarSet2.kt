@@ -195,10 +195,39 @@ object StellarSet2 {
     }
   }
 
-  fun quest7() {
+  fun quest7(secretKey: String) {
     // Quest: Revoke sponsorship for the account sponsored in quest 6
+    // Our approach will be to find and cancel all sponsorships
     announceQuest(7) {
-      TODO("Quest is not done yet!")
+      val sourceAccount = KeyPair.fromSecretSeed(secretKey)
+      val remoteSourceAccount = stellarServer.accounts().account(sourceAccount.accountId)
+      val transactionBuilder = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
+        .addMemo(Memo.text("Revoke all sponsorships!"))
+        .setBaseFee(100)
+        .setTimeout(180)
+
+      val sponsoredAccounts = stellarServer.accounts().forSponsor(sourceAccount.accountId).execute().records
+      if (sponsoredAccounts.isEmpty()) throw Exception("The provided account isn't sponsoring anything!")
+
+      sponsoredAccounts.forEach {
+        transactionBuilder.addOperation(
+          // We need to provide the account with some XLM so they can handle the minimum balance themselves.
+          // Otherwise the transaction will fail.
+          PaymentOperation
+            .Builder(it.accountId, AssetTypeNative(), "1")
+            .build()
+        ).addOperation(
+          RevokeAccountSponsorshipOperation
+            .Builder(it.accountId)
+            .build()
+        )
+      }
+
+      transactionBuilder.build()
+        .also {
+          it.sign(sourceAccount)
+          tryTransactions(it)
+        }
     }
   }
 
