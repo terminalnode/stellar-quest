@@ -13,9 +13,40 @@ object StellarSet3 {
     println("END: Set 3, Quest $questNumber")
   }
 
-  fun quest1() {
+  fun quest1(sourceSecretKey: String) {
     announceQuest(1) {
-      TODO("Quest is not done yet!")
+      // Quest: Create a new account and bump it's sequence to 110101115104111
+      // See: https://horizon.stellar.org/transactions/073cde1fab7d28d3e322e5f61ac385c37859c3e82b17b6c92a9f0444420336cb/operations
+      //
+      // Even though the transaction implies that we should create an account and bump its sequence, that didn't work
+      // for me and relevant code has therefore been commented out below.
+      val source = KeyPair.fromSecretSeed(sourceSecretKey)
+      val sourceAccount = stellarServer.accounts().account(source.accountId)
+      // val newAccount = KeyPair.random()
+
+      val transaction = Transaction.Builder(sourceAccount, Network.TESTNET)
+        .addMemo(Memo.text("Bompetee-bomp!"))
+        .setBaseFee(100)
+        .setTimeout(180)
+        // Not sure this is needed, probably not. First tried bumping the newly created account,
+        // but the verification didn't pass until I changed the bump sequence operation to my own account.
+        // .addOperation(
+        //   CreateAccountOperation
+        //     .Builder(newAccount.accountId, "10")
+        //     .setSourceAccount(sourceAccount.accountId)
+        //     .build()
+        // )
+        .addOperation(
+          BumpSequenceOperation
+            .Builder(110101115104111)
+            .build()
+        ).build()
+        .also {
+          it.sign(source)
+          //it.sign(newAccount)
+        }
+
+      tryTransactions(transaction)
     }
   }
 

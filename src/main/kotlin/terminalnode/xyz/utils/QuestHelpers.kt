@@ -24,6 +24,8 @@ fun tryTransactions(vararg transactions: Transaction) {
       if (!response.isSuccess) {
         println(response.extras.resultCodes.operationsResultCodes)
         throw Exception(response.extras.resultCodes.transactionResultCode)
+      } else {
+        println("https://horizon.stellar.org/transactions/${response.hash}")
       }
     } catch (e: Exception) {
       println("Transaction $index ($memo) failed with exception: ${e.message}.\nStacktrace:")
