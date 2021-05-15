@@ -37,8 +37,10 @@ fun Application.configureRoutingSet2() {
         StellarSet2.quest5(secretKey)
       }
 
-      get("/6") {
-        StellarSet2.quest6()
+      get("/6/{secretKey}") {
+        val secretKey = call.parameters["secretKey"]
+          ?: throw Exception("Please provide the secret key of your account")
+        StellarSet2.quest6(secretKey)
       }
 
       get("/7") {

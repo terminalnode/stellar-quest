@@ -22,6 +22,7 @@ fun tryTransactions(vararg transactions: Transaction) {
 
       println("Transaction $index/$totalTxs ($memo) completed! $resultText")
       if (!response.isSuccess) {
+        println(response.extras.resultCodes.operationsResultCodes)
         throw Exception(response.extras.resultCodes.transactionResultCode)
       }
     } catch (e: Exception) {

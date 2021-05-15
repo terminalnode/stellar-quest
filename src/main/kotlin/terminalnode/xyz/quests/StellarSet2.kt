@@ -157,25 +157,53 @@ object StellarSet2 {
         .setBaseFee(100)
         .setTimeout(180)
         .build()
-        .also { it.sign(sourceAccount) }
+        .also {it.sign(sourceAccount) }
 
       tryTransactions(transaction)
     }
   }
 
-  fun quest6() {
+  fun quest6(secretKey: String) {
+    // Quest: Sponsor the absolute minimum balance for a new account
     announceQuest(6) {
-      TODO("Quest is not done yet!")
+      val sourceAccount = KeyPair.fromSecretSeed(secretKey)
+      val remoteSourceAccount = stellarServer.accounts().account(sourceAccount.accountId)
+      val sponsoredAccount = KeyPair.random()
+
+      val transaction = Transaction.Builder(remoteSourceAccount, Network.TESTNET)
+        .addOperation(
+          BeginSponsoringFutureReservesOperation
+            .Builder(sponsoredAccount.accountId)
+            .build()
+        ).addOperation(
+          CreateAccountOperation
+            .Builder(sponsoredAccount.accountId, "0")
+            .build()
+        ).addOperation(EndSponsoringFutureReservesOperation(sponsoredAccount.accountId))
+        .addMemo(Memo.text("Sponsored!"))
+        .setBaseFee(100)
+        .setTimeout(180)
+        .build()
+        .also {
+          // Sponsoring transaction needs to be signed by both participants,
+          // you can not sponsor someone who is not willing to be sponsored. :-)
+          it.sign(sourceAccount)
+          it.sign(sponsoredAccount)
+        }
+
+      tryTransactions(transaction)
     }
   }
 
   fun quest7() {
+    // Quest: Revoke sponsorship for the account sponsored in quest 6
     announceQuest(7) {
       TODO("Quest is not done yet!")
     }
   }
 
   fun quest8(secretKey: String, domain: String) {
+    // Quest: Create a stellar.toml hosts file for your account
     announceQuest(8) {
       println("NOTE: This is just a partial solution, you also need to add your .well-known/stellar.toml file to the domain!")
       val sourceAccount = KeyPair.fromSecretSeed(secretKey)
