@@ -29,7 +29,7 @@ to those as well.
 ## Why is this a Ktor project?
 I mostly do backend web development, and I wanted to try out Ktor even if it doesn't make much
 sense for this to be an API. It also provides an easy way for me to run specific solutions by
-triggering their endpoints. ¯\_(ツ)_/¯
+triggering their endpoints. ¯\\_(ツ)\_/¯
 
 ## Bragging rights
 These are my positions during the competitions I've participated in. Registrations open either 2 
