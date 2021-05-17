@@ -39,3 +39,4 @@ other quest I will usually have to do them the day after if I'm to sleep before 
  - **S3-Q2** 🔰 13th place
  - **S3-Q3** 🔰 6th place
  - **S3-Q4** 🥇 1st place 
+ - **S3-Q5** 🔰 5th place

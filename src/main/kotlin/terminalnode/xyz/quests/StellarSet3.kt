@@ -1,6 +1,7 @@
 package terminalnode.xyz.quests
 
 import org.stellar.sdk.*
+import terminalnode.xyz.utils.fundRandomAccount
 import terminalnode.xyz.utils.stellarServer
 import terminalnode.xyz.utils.tryTransactions
 import java.security.MessageDigest
@@ -157,9 +158,57 @@ object StellarSet3 {
     }
   }
 
-  fun quest5() {
+  fun quest5(sourceSecretKey: String) {
     announceQuest(5) {
-      TODO("Quest is not done yet!")
+      // Quest: Issue a clawback transaction.
+      // 1. Set the clawback flag (which requires auth revocable) on your account.
+      // 2. Create a trust line from some poor sod's account to yours.
+      val poorSod = fundRandomAccount()
+      val myAccount = KeyPair.fromSecretSeed(sourceSecretKey)
+      val sourceAccount = stellarServer.accounts().account(myAccount.accountId)
+      val newAsset = Asset.createNonNativeAsset("MariusLenk", myAccount.accountId)
+
+      val enableClawback = Transaction.Builder(sourceAccount, Network.TESTNET)
+        .addOperation(
+          SetOptionsOperation
+            .Builder()
+            .setSetFlags(0x2) // auth revocable
+            .build())
+        .addOperation(
+          SetOptionsOperation
+            .Builder()
+            .setSetFlags(0x8) // clawback flag
+            .build())
+        .setTimeout(180).setBaseFee(100).addMemo(Memo.text("MariusLenk bucks"))
+        .build()
+        .also { it.sign(myAccount) }
+
+      val acceptAsset = Transaction.Builder(sourceAccount, Network.TESTNET)
+        .addOperation(
+          ChangeTrustOperation
+            .Builder(newAsset, "10000000")
+            .setSourceAccount(poorSod.accountId)
+            .build())
+        .addOperation(
+          PaymentOperation
+            .Builder(poorSod.accountId, newAsset, "10")
+            .build())
+        .setTimeout(180).setBaseFee(100).addMemo(Memo.text("MariusLenk bucks"))
+        .build()
+        .also {
+          it.sign(myAccount)
+          it.sign(poorSod)
+        }
+
+      val clawbackAsset = Transaction.Builder(sourceAccount, Network.TESTNET)
+        .addOperation(ClawbackOperation.Builder(poorSod.accountId, newAsset, "10").build())
+        .setTimeout(180).setBaseFee(100).addMemo(Memo.text("MariusLenk bucks"))
+        .build()
+        .also {
+          it.sign(myAccount)
+        }
+
+      tryTransactions(enableClawback, acceptAsset, clawbackAsset)
     }
   }
 
