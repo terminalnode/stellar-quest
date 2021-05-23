@@ -39,9 +39,18 @@ fun tryTransactions(vararg transactions: Transaction) {
 
 fun fundRandomAccount(): KeyPair = KeyPair.random().also {
   println("Generating and funding an account")
-  val friendBotUrl = "https://friendbot.stellar.org/?addr=${it.accountId}"
-  URL(friendBotUrl).openStream()
+  URL("https://friendbot.stellar.org/?addr=${it.accountId}").openStream()
   println("New random account funded")
+}
+
+/**
+ * Try to fund an account.
+ * Errors are expected and thus will not be reported. If an account has already been funded that will cause
+ * friendbot to not want to be our friend, but we don't care.
+ */
+fun goFundMe(publicKey: String) {
+  println("Funding $publicKey")
+  URL("https://friendbot.stellar.org/?addr=${publicKey}").openStream()
 }
 
 fun clearDataFromAccount(secretKey: String) {
