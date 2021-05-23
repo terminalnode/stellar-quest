@@ -251,6 +251,46 @@ object StellarSet3 {
 		}
 	}
 
+	fun quest6Daniel() {
+		announceQuest(6) {
+			println("DANIEL EDITION, uploading an image of mah b0i")
+			val source = fundRandomAccount()
+			val sourceAccount = stellarServer.accounts().account(source.accountId)
+
+			val opsLists = URL("https://media.discordapp.net/attachments/626403545146720276/845831804693774386/daniel.png")
+				.openStream()
+				.readAllBytes()
+				.let { Base64.getEncoder().encode(it).toList() }
+				.chunked(62 + 64)
+				.also { println("Number of transactions: ${it.size}") }
+				.mapIndexed { index, keyAndValue ->
+					val key = keyAndValue.take(62).toByteArray().toString(Charsets.UTF_8)
+					val stringKey = "${index.toString().padStart(2, '0')}${key}"
+					val value = keyAndValue.drop(62).toByteArray()
+
+					return@mapIndexed ManageDataOperation
+						.Builder(stringKey, value)
+						.build()
+				}.chunked(100)
+
+			val txs = opsLists.mapIndexed { index, ops ->
+				val tx = Transaction.Builder(sourceAccount, Network.TESTNET)
+					.setTimeout(180)
+					.setBaseFee(100)
+					.addMemo(Memo.text("Building Mr D (${index + 1}/${opsLists.size})"))
+					.apply { ops.forEach { addOperation(it) } }
+					.build()
+				tx.sign(source)
+				return@mapIndexed tx
+			}.toTypedArray()
+
+			tryTransactions(*txs)
+
+			// Print the URL
+			println("https://api.stellar.quest/badge/${source.accountId}?network=test&v=1")
+		}
+	}
+
 	fun quest6Dirty(sourceSecretKey: String) {
 		announceQuest(6) {
 			println("CHEATER EDITION, that doesn't actually work atm!")

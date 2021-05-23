@@ -49,6 +49,10 @@ fun Application.configureRoutingSet3() {
         StellarSet3.quest6Dirty(secretKey)
       }
 
+      get("/6/daniel") {
+        StellarSet3.quest6Daniel()
+      }
+
       get("/7") {
         StellarSet3.quest7()
       }
