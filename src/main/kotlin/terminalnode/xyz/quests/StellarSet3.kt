@@ -228,27 +228,22 @@ object StellarSet3 {
 
 			// There's a bug where cloudflare compresses the image we get from api.stellar.quest, rendering the b64 string
 			// unusable. Solution is to use this original version of the image posted on discord instead.
-			//var fileData = URL("https://api.stellar.quest/badge/GCEE5H3RI2MFP4UQ4NHFKLGTIHILWA775AM7KTLU5HUBSLOBJN7M4RSL?network=public&v=1")
-			var fileData = URL("https://cdn.discordapp.com/attachments/765215066420805663/845133032443740160/GCEE5H3RI2MFP4UQ4NHFKLGTIHILWA775AM7KTLU5HUBSLOBJN7M4RSL.png")
+			//val ops = URL("https://api.stellar.quest/badge/GCEE5H3RI2MFP4UQ4NHFKLGTIHILWA775AM7KTLU5HUBSLOBJN7M4RSL?network=public&v=1")
+			val ops = URL("https://cdn.discordapp.com/attachments/765215066420805663/845133032443740160/GCEE5H3RI2MFP4UQ4NHFKLGTIHILWA775AM7KTLU5HUBSLOBJN7M4RSL.png")
 				.openStream()
 				.readAllBytes()
 				.let { Base64.getEncoder().encode(it).toList() }
+				.chunked(62 + 64)
+				.mapIndexed { index, keyAndValue ->
+					val key = keyAndValue.take(62).toByteArray().toString(Charsets.UTF_8)
+					val stringKey = "${index.toString().padStart(2, '0')}${key}"
+					val value = keyAndValue.drop(62).toByteArray()
 
-			var index = 0
-			while (fileData.isNotEmpty()) {
-				val keyAndValue = fileData.take(62 + 64)
-				fileData = fileData.drop(62 + 64)
-
-				val key = keyAndValue.take(62).toByteArray().toString(Charsets.UTF_8)
-				val stringKey = "${index.toString().padStart(2, '0')}${key}"
-				val value = keyAndValue.drop(62).toByteArray()
-
-				val operation = ManageDataOperation
-					.Builder(stringKey, value)
-					.build()
-				addDataTransactionBuilder.addOperation(operation)
-				index++
-			}
+					return@mapIndexed ManageDataOperation
+						.Builder(stringKey, value)
+						.build()
+				}
+			ops.forEach { addDataTransactionBuilder.addOperation(it) }
 
 			// Build and sign tx
 			val addDataTransaction = addDataTransactionBuilder.build().also { it.sign(source) }

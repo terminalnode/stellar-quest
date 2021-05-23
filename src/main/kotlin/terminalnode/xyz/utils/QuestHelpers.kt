@@ -51,7 +51,7 @@ fun clearDataFromAccount(secretKey: String) {
   if (account.data.keys.isNotEmpty()) {
     println("Found old data, removing that first!")
     Transaction.Builder(account, Network.TESTNET)
-      .setTimeout(180).setBaseFee(100).addMemo(Memo.text("Adding NFT!"))
+      .setTimeout(180).setBaseFee(100).addMemo(Memo.text("Removing all data"))
       .apply {
         account.data.keys.forEach {
           addOperation(ManageDataOperation.Builder(it, null).build())
