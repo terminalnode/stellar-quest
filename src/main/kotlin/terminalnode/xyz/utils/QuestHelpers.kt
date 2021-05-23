@@ -50,17 +50,25 @@ fun clearDataFromAccount(secretKey: String) {
 
   if (account.data.keys.isNotEmpty()) {
     println("Found old data, removing that first!")
-    Transaction.Builder(account, Network.TESTNET)
-      .setTimeout(180).setBaseFee(100).addMemo(Memo.text("Removing all data"))
-      .apply {
-        account.data.keys.forEach {
-          addOperation(ManageDataOperation.Builder(it, null).build())
-        }
-      }.build()
-      .also {
-        it.sign(keyPair)
-        tryTransactions(it)
+    val opsLists = account.data.keys.map {
+      ManageDataOperation.Builder(it, null).build()
+    }.chunked(100)
+
+    val txs = opsLists
+      .mapIndexed { index, ops ->
+        val tx = Transaction.Builder(account, Network.TESTNET)
+          .setTimeout(180)
+          .setBaseFee(100)
+          .addMemo(Memo.text("Removing data (${index + 1}/${opsLists.size})"))
+          .apply { ops.forEach { addOperation(it) } }
+          .build()
+
+        tx.sign(keyPair)
+
+        return@mapIndexed tx
       }
+
+		tryTransactions(*txs.toTypedArray())
   } else {
     println("No existing data in account, not clearing anything")
   }
